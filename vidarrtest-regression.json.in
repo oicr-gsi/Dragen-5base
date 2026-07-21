@@ -40,7 +40,13 @@
          "rgsm": "TX5B_0000_01_LB01-01",
          "readGroup": "ID:TX5B_0000_01_LB01-01_CAGCCGCGTA-CACGGCTAGT PL:Illumina PU:TX5B_0000_01_LB01-01 LB:TX5B_0000_01_LB01-01 SM:TX5B_0000_01_LB01-01 CN:OICR"
       },
-      "dragen5Base.runDragen.additionalParameters": null,
+      "dragen5Base.runDragen.additionalParameters": null
+      },
+      "description": "dragen5Base workflow test",
+      "engineArguments": {
+           "write_to_cache": false,
+           "read_from_cache": false
+      },
       "id": "dragen5BaseTest",
       "metadata": {
         "dragen5Base.annotatedBam": {
@@ -172,6 +178,5 @@
              "type": "script"
            }
        ]
-    }
-  }
+ }
 ]
