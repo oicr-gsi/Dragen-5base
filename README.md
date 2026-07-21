@@ -75,8 +75,8 @@ This section lists command(s) run by dragen5Base workflow
  
 ## Generate indexes for reference and methylation hashtables
  
-This reallyu is an optional code which is not supposed to run every time but is here
-so that if a need arises to generate new indices for whatever reson - it is available.
+This really is an optional code which is not supposed to run every time but is here
+so that if a need arises to generate new indices for whatever reason - it is available.
  
 ```
    export PATH=$PATH:~{dragenBinPath}
