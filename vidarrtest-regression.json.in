@@ -1,0 +1,146 @@
+[
+  { 
+    "arguments": {
+       "dragen5Base.runDragen.mappingImplementation": null,
+       "dragen5Base.dragenBinPath": "/opt/dragen/4.5.4/bin/",
+       "dragen5Base.runDragen.enableDupMarking": null,
+       "dragen5Base.runDragen.methProtocol": null,
+       "dragen5Base.runDragen.enableTargeted": null,
+       "dragen5Base.reference": "hg38",
+       "dragen5Base.runDragen.firstTileOnly": null,
+       "dragen5Base.runDragen.onlyMatchedReads": null,
+       "dragen5Base.timeout": null,
+       "dragen5Base.outputFileNamePrefix": "TX5B_0000_01_LB01-01",
+       "dragen5Base.sample": {
+         "fastqR1": {
+            "contents": {
+               "configuration": "/.mounts/labs/gsi/testdata/dragen5Base/test_inputs/TX5B_0000_CAGCCGCGTA-CACGGCTAGT_R1.fastq.gz",
+               "externalIds": [
+                  {
+                    "id": "TEST",
+                    "provider": "TEST"
+                  }
+               ]
+               },
+               "type": "EXTERNAL"
+         },
+         "fastqR2": {
+            "contents": {
+               "configuration": "/.mounts/labs/gsi/testdata/dragen5Base/test_inputs/TX5B_0000_CAGCCGCGTA-CACGGCTAGT_R2.fastq.gz",
+               "externalIds": [
+                  {
+                    "id": "TEST",
+                    "provider": "TEST"
+                  }
+               ]
+               },
+               "type": "EXTERNAL"
+         },
+         "rgid": "TX5B_0000_01_LB01-01_CAGCCGCGTA-CACGGCTAGT",
+         "rgsm": "TX5B_0000_01_LB01-01",
+         "readGroup": "ID:TX5B_0000_01_LB01-01_CAGCCGCGTA-CACGGCTAGT PL:Illumina PU:TX5B_0000_01_LB01-01 LB:TX5B_0000_01_LB01-01 SM:TX5B_0000_01_LB01-01 CN:OICR"
+      },
+      "dragen5Base.runDragen.additionalParameters": null,
+      "id": "dragen5BaseTest",
+      "metadata": {
+        "dragen5Base.annotatedBam": {
+           "contents": [
+              "outputDirectory": "@SCRATCH@/@DATE@_Workflow_dragen5Base_dragen5BaseTest_@JENKINSID@"
+           ],
+           "type": "ALL"
+        },
+        "dragen5Base.annotatedBai": {
+           "contents": [
+              "outputDirectory": "@SCRATCH@/@DATE@_Workflow_dragen5Base_dragen5BaseTest_@JENKINSID@"
+           ],
+           "type": "ALL"
+        },
+        "dragen5Base.methylationReport": {
+           "contents": [
+              "outputDirectory": "@SCRATCH@/@DATE@_Workflow_dragen5Base_dragen5BaseTest_@JENKINSID@"
+           ],
+           "type": "ALL"
+        },
+        "dragen5Base.lambdaControls": {
+           "contents": [
+              "outputDirectory": "@SCRATCH@/@DATE@_Workflow_dragen5Base_dragen5BaseTest_@JENKINSID@"
+           ],
+           "type": "ALL"
+        },
+        "dragen5Base.puc19Controls": {
+           "contents": [
+              "outputDirectory": "@SCRATCH@/@DATE@_Workflow_dragen5Base_dragen5BaseTest_@JENKINSID@"
+           ],
+           "type": "ALL"
+        },
+        "dragen5Base.ploidyVcf": {
+           "contents": [
+              "outputDirectory": "@SCRATCH@/@DATE@_Workflow_dragen5Base_dragen5BaseTest_@JENKINSID@"
+           ],
+           "type": "ALL"
+        },
+        "dragen5Base.ploidyIndex": {
+           "contents": [
+              "outputDirectory": "@SCRATCH@/@DATE@_Workflow_dragen5Base_dragen5BaseTest_@JENKINSID@"
+           ],
+           "type": "ALL"
+        },
+        "dragen5Base.fastqcMetrics": {
+           "contents": [
+              "outputDirectory": "@SCRATCH@/@DATE@_Workflow_dragen5Base_dragen5BaseTest_@JENKINSID@"
+           ],
+           "type": "ALL"
+        },
+        "dragen5Base.mappingMetrics": {
+           "contents": [
+              "outputDirectory": "@SCRATCH@/@DATE@_Workflow_dragen5Base_dragen5BaseTest_@JENKINSID@"
+           ],
+           "type": "ALL"
+        },
+        "dragen5Base.methylMetrics": {
+           "contents": [
+              "outputDirectory": "@SCRATCH@/@DATE@_Workflow_dragen5Base_dragen5BaseTest_@JENKINSID@"
+           ],
+           "type": "ALL"
+        },
+        "dragen5Base.metricsJson": {
+           "contents": [
+              "outputDirectory": "@SCRATCH@/@DATE@_Workflow_dragen5Base_dragen5BaseTest_@JENKINSID@"
+           ],
+           "type": "ALL"
+        },
+        "dragen5Base.ploidyMetrics": {
+           "contents": [
+              "outputDirectory": "@SCRATCH@/@DATE@_Workflow_dragen5Base_dragen5BaseTest_@JENKINSID@"
+           ],
+           "type": "ALL"
+        },
+        "dragen5Base.timeMetrics": {
+           "contents": [
+              "outputDirectory": "@SCRATCH@/@DATE@_Workflow_dragen5Base_dragen5BaseTest_@JENKINSID@"
+           ],
+           "type": "ALL"
+        },
+        "dragen5Base.trimmerMetrics": {
+           "contents": [
+              "outputDirectory": "@SCRATCH@/@DATE@_Workflow_dragen5Base_dragen5BaseTest_@JENKINSID@"
+           ],
+           "type": "ALL"
+        },
+        "dragen5Base.coverageMetrics": {
+           "contents": [
+              "outputDirectory": "@SCRATCH@/@DATE@_Workflow_dragen5Base_dragen5BaseTest_@JENKINSID@"
+           ],
+           "type": "ALL"
+        }
+       },
+       "validators": [
+           {
+             "metrics_calculate": "@CHECKOUT@/tests/calculate.sh",
+             "metrics_compare": "@CHECKOUT@/tests/compare.sh",
+             "output_metrics": "/.mounts/labs/gsi/testdata/dragen5Base/output_metrics/dragen5BaseTest.metrics",
+             "type": "script"
+           }
+       ]
+  }
+]
