@@ -1,16 +1,26 @@
 ## Commands
 This section lists command(s) run by dragen5Base workflow
 
-* Running dragen5Base with Cromwell
+* Running dragen5Basei with Cromwell:
 
-cromwell.jar submit dragen5base.wdl -i my_inputs.json -h http://myhost.cromwell.ca
+  cromwell.jar submit dragen5base.wdl -i my_inputs.json -h http://myhost.cromwell.ca 
 
-=== Description here ===.
+## Process InputGroup entries (lane-level data)
+
+```
+    python3 ~{parsingScript} -i ~{write_json(fastqInput)}
+```
+
+## Compose a list of inputs for runDragen task
+
+```
+   python3 ~{listWritingScript} -o ~{outputFileName} -l "~{sep=';' inputLines}"
+```
 
 ## Generate indexes for reference and methylation hashtables
 
-This reallyu is an optional code which is not supposed to run every time but is here
-so that if a need arises to generate new indices for whatever reson - it is available.
+This really is an optional code which is not supposed to run every time but is here
+so that if a need arises to generate new indices for whatever reason - it is available.
 
 ```
   export PATH=$PATH:~{dragenBinPath}
@@ -33,23 +43,11 @@ so that if a need arises to generate new indices for whatever reson - it is avai
 
 ## runDragen
 
-Main function which runs DRAGEN pipeline and produces a number of important outputs, to mention
-just a few - 
-
-- bam file (and it's index file) with XR:Z, XG:Z and XM:Z tags with important methylation info
-- vcf files with INFO and FORMAT M5mC fields also showing base methylation status
-- metrics files which are too many to list here. See the metadata part of wdl or Illumina docs
-
-We run this on paired fastq files which should come from an experiment actually capable of
-producing proper data for this workflow.
-
 ```
   export PATH=$PATH:~{dragenBinPath}
   dragen -f -r ~{refDir} \
-  -1 ~{fastqFile1} \
-  -2 ~{fastqFile2} \
-  --RGID ~{rgid} \
-  --RGSM ~{rgsm} \
+  --fastq-list ~{csv} \
+  --fastq-list-all-samples true \
   --enable-map-align-output true \
   --enable-duplicate-marking ~{enableDupMarking} \
   --enable-variant-caller false \
@@ -64,3 +62,4 @@ producing proper data for this workflow.
   --output-directory . \
   --output-file-prefix ~{outputFileNamePrefix} ~{additionalParameters}
 ```
+

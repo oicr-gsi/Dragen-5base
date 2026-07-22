@@ -4,8 +4,6 @@ struct InputGroup {
   File fastqR1
   File fastqR2
   String readGroup
-  String rgid
-  String rgsm
 }
 
 struct GenomeResources {
@@ -17,7 +15,7 @@ struct GenomeResources {
 workflow dragen5Base {
   input {
     String reference
-    InputGroup sample 
+    Array[InputGroup] samples 
     String outputFileNamePrefix
     String dragenBinPath = "/opt/dragen/4.5.4/bin/"
     Int timeout = 40
@@ -26,7 +24,7 @@ workflow dragen5Base {
     reference: "Reference id"
     dragenBinPath: "Path to DRAGEN bin directory on device, we need this to select right version"
     outputFileNamePrefix: "Output file name prefix for final results"
-    sample: "InputGroups with sample-specific data"
+    samples: "Array of InputGroups with sample-specific data"
     timeout: "The maximum number of hours this workflow can run for."
   }
 
@@ -116,14 +114,26 @@ workflow dragen5Base {
     }
   }
 
+  # For multi-lane sequencing we absolutely need this:
+  scatter(t in samples) {
+    call extractInfoLine {
+      input:
+      fastqInput = object{fastqR1: t.fastqR1, fastqR2: t.fastqR2, readGroup: t.readGroup}
+    }
+  }
+
+  # Compose the list for DRAGEN:
+  call composeList {
+    input:
+      inputLines = extractInfoLine.outputLine,
+      outputFileName = "dragen_inputs.csv"
+  }
+
   # Run Dragen (5base analysis) 
   call runDragen {
     input:
-      fastqFile1 = sample.fastqR1,
-      fastqFile2 = sample.fastqR2,
+      csv = composeList.inputList,
       dragenBinPath = dragenBinPath,
-      rgid = sample.rgid,
-      rgsm = sample.rgsm,
       timeout = timeout,
       refDir = dragen_resources_by_genome[reference].referenceDirectory,
       outputFileNamePrefix = outputFileNamePrefix
@@ -147,6 +157,91 @@ workflow dragen5Base {
      File coverageMetrics = runDragen.coverageMetrics
 
   }
+}
+
+# =====================================================================
+# A scripted extraction of info from RG line to dragen-compliant string
+# =====================================================================
+task extractInfoLine {
+   input {
+       InputGroup fastqInput
+       String parsingScript = "$DRAGEN_SCRIPTS_ROOT/bin/composeList.py"
+       Int timeout = 4
+       Int jobMemory = 4
+       String modules = "dragen-scripts/0.3"
+   }
+
+   parameter_meta {
+     fastqInput: "InputGroup struct entry with fastq files"
+     parsingScript: "Script for parsing inputs into a line"
+     timeout: "Timeout for the job"
+     jobMemory: "Job allocated RAM"
+     modules: "dependency modules"
+   }
+
+   command <<<
+    python3 ~{parsingScript} -i ~{write_json(fastqInput)}
+   >>>
+
+   runtime {
+     timeout: "~{timeout}"
+     modules: "~{modules}"
+     memory:  "~{jobMemory} GB"
+   }
+
+   output {
+     String outputLine = read_string(stdout())
+   }
+
+   meta {
+     output_meta: {
+       outputLine: "Output line to use in a list of fastq files in dragen-compliant format"
+     }
+   }
+}
+
+# =====================================================================
+#  Compose a dragen-compliant list of inputs to use with snv caller
+# =====================================================================
+task composeList {
+   input  {
+      Array[String] inputLines
+      String listWritingScript = "$DRAGEN_SCRIPTS_ROOT/bin/writeFile.py"
+      String outputFileName
+      Int jobMemory = 4
+      Int timeout = 4
+      String modules = "dragen-scripts/0.3"
+   }
+
+   parameter_meta {
+     inputLines: "Array of input lines to print"
+     listWritingScript: "Script for writing out list of inputs"
+     outputFileName: "Name of an output file, list of inputs"
+     jobMemory: "Job allocated RAM"
+     timeout: "Timeout for the job"
+     modules: "dependency modules"
+   }
+
+   command<<<
+   python3 ~{listWritingScript} -o ~{outputFileName} -l "~{sep=';' inputLines}"
+   >>>
+
+
+   runtime {
+      timeout: "~{timeout}"
+      modules: "~{modules}"
+      memory:  "~{jobMemory} GB"
+   }
+
+   output {
+     File inputList = "~{outputFileName}"
+   }
+
+   meta {
+     output_meta: {
+       inputList: "Output file to use with dragen SNV caller"
+     }
+   }
 }
 
 # =====================================================================
@@ -196,11 +291,8 @@ task buildDragenIndex {
 task runDragen {
   input {
     String refDir
-    File fastqFile1
-    File fastqFile2
+    File csv
     String dragenBinPath
-    String rgid
-    String rgsm
     Boolean firstTileOnly = false
     Boolean enableDupMarking = true
     Boolean enableTargeted = true
@@ -213,15 +305,12 @@ task runDragen {
   }
 
   parameter_meta {
-    fastqFile1: "Fastq file 1"
-    fastqFile2: "Fastq file 2"
-    rgid: "RGID for identifying the sample"
-    rgsm: "RGSM for the sample"
+    csv: "Formatted csv input for Dragen, containing fastq files and read-group information"
     refDir: "The reference genome directoty"
+    methProtocol: "Methylation protocol (none|directional|non-directional|directional-complement|pbat),Default: directional"
     dragenBinPath: "path to the bin directory with dragen executable"
     enableDupMarking: "Boolean flag for enabling/disabling duplicate marking"
     enableTargeted: "Enable targeted sequencing"
-    methProtocol: "Methylation protocol (none|directional|non-directional|directional-complement|pbat),Default: directional"
     firstTileOnly: "Flag for processing first tile only. Default false"
     onlyMatchedReads: "Process only matched reads. Default true"
     timeout: "Timeout for this task. Default 40"
@@ -233,10 +322,8 @@ task runDragen {
   command <<<
   export PATH=$PATH:~{dragenBinPath}
   dragen -f -r ~{refDir} \
-  -1 ~{fastqFile1} \
-  -2 ~{fastqFile2} \
-  --RGID ~{rgid} \
-  --RGSM ~{rgsm} \
+  --fastq-list ~{csv} \
+  --fastq-list-all-samples true \
   --enable-map-align-output true \
   --enable-duplicate-marking ~{enableDupMarking} \
   --enable-variant-caller false \

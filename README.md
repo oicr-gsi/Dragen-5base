@@ -8,7 +8,6 @@ Workflow to produce methylation calls from an Illumina instrument's run director
 
 * [dragen5base](https://help.dragen.illumina.com/product-guides/dragen-v4.5/dragen-methylation-pipeline/dragen-5base-pipeline)
 
-
 ## Usage
 
 ### Cromwell
@@ -22,7 +21,7 @@ java -jar cromwell.jar run dragen5Base.wdl --inputs inputs.json
 Parameter|Value|Description
 ---|---|---
 `reference`|String|Reference id
-`sample`|InputGroup|InputGroups with sample-specific data
+`samples`|Array[InputGroup]|Array of InputGroups with sample-specific data
 `outputFileNamePrefix`|String|Output file name prefix for final results
 
 
@@ -36,6 +35,14 @@ Parameter|Value|Default|Description
 #### Optional task parameters:
 Parameter|Value|Default|Description
 ---|---|---|---
+`extractInfoLine.parsingScript`|String|"$DRAGEN_SCRIPTS_ROOT/bin/composeList.py"|Script for parsing inputs into a line
+`extractInfoLine.timeout`|Int|4|Timeout for the job
+`extractInfoLine.jobMemory`|Int|4|Job allocated RAM
+`extractInfoLine.modules`|String|"dragen-scripts/0.3"|dependency modules
+`composeList.listWritingScript`|String|"$DRAGEN_SCRIPTS_ROOT/bin/writeFile.py"|Script for writing out list of inputs
+`composeList.jobMemory`|Int|4|Job allocated RAM
+`composeList.timeout`|Int|4|Timeout for the job
+`composeList.modules`|String|"dragen-scripts/0.3"|dependency modules
 `runDragen.firstTileOnly`|Boolean|false|Flag for processing first tile only. Default false
 `runDragen.enableDupMarking`|Boolean|true|Boolean flag for enabling/disabling duplicate marking
 `runDragen.enableTargeted`|Boolean|true|Enable targeted sequencing
@@ -67,11 +74,20 @@ Output | Type | Description | Labels
 
 
 ## Commands
+
 This section lists command(s) run by dragen5Base workflow
  
-* Running dragen5Base with Cromwell
+## Process InputGroup entries (lane-level data)
  
- cromwell.jar submit dragen5base.wdl -i my_inputs.json -h http://myhost.cromwell.ca
+```
+     python3 ~{parsingScript} -i ~{write_json(fastqInput)}
+```
+ 
+## Compose a list of inputs for runDragen task
+ 
+```
+    python3 ~{listWritingScript} -o ~{outputFileName} -l "~{sep=';' inputLines}"
+```
  
 ## Generate indexes for reference and methylation hashtables
  
@@ -99,23 +115,11 @@ so that if a need arises to generate new indices for whatever reason - it is ava
  
 ## runDragen
  
-Main function which runs DRAGEN pipeline and produces a number of important outputs, to mention
-just a few - 
- 
-- bam file (and it's index file) with XR:Z, XG:Z and XM:Z tags with important methylation info
-- vcf files with INFO and FORMAT M5mC fields also showing base methylation status
-- metrics files which are too many to list here. See the metadata part of wdl or Illumina docs
- 
-We run this on paired fastq files which should come from an experiment actually capable of
-producing proper data for this workflow.
- 
 ```
    export PATH=$PATH:~{dragenBinPath}
    dragen -f -r ~{refDir} \
-   -1 ~{fastqFile1} \
-   -2 ~{fastqFile2} \
-   --RGID ~{rgid} \
-   --RGSM ~{rgsm} \
+   --fastq-list ~{csv} \
+   --fastq-list-all-samples true \
    --enable-map-align-output true \
    --enable-duplicate-marking ~{enableDupMarking} \
    --enable-variant-caller false \
