@@ -9,10 +9,10 @@ module load samtools/1.14
 cd $1
 
 # For json file we do the md5sum
-find . -name '*.json' | xargs md5sum
+for j in *.json;do wc -l $j;done
 
 #find all bam files, return their samtools flagstat
 find -name *.bam -xtype f -exec samtools flagstat {} \;
 
 #find all .csv files, run md5sums
-find -name "*.csv" | xargs md5sum
+for c in *.csv;do wc -l $c;done
