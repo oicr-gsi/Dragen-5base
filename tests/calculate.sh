@@ -8,11 +8,8 @@ module load samtools/1.14
 #enter the workflow's final output directory ($1)
 cd $1
 
-# For json file we do the md5sum
-for j in *.json;do wc -l $j;done
-
 #find all bam files, return their samtools flagstat
 find -name *.bam -xtype f -exec samtools flagstat {} \;
 
 #find all .csv files, run md5sums
-for c in *.csv;do wc -l $c;done
+for c in *metrics.csv;do wc -l $c;done | sort -k 2
