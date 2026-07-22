@@ -1,6 +1,14 @@
 [
   { 
     "arguments": {
+       "dragen5Base.composeList.jobMemory": null,
+       "dragen5Base.composeList.listWritingScript": null,
+       "dragen5Base.composeList.modules": null,
+       "dragen5Base.composeList.timeout": null,
+       "dragen5Base.extractInfoLine.jobMemory": null,
+       "dragen5Base.extractInfoLine.modules": null,
+       "dragen5Base.extractInfoLine.parsingScript": null,
+       "dragen5Base.extractInfoLine.timeout": null,
        "dragen5Base.runDragen.mappingImplementation": null,
        "dragen5Base.dragenBinPath": "/opt/dragen/4.5.4/bin/",
        "dragen5Base.runDragen.enableDupMarking": null,
